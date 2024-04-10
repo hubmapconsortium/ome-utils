@@ -1,5 +1,5 @@
-OME-XML file utilities
-==================================
+OME-XML utilities
+=================
 
 Overview
 --------
