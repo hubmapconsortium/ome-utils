@@ -30,6 +30,10 @@ setup(
     ],
     keywords="ometiff",
     packages=find_packages(),
-    install_requires=["pint"],
+    install_requires=[
+        "aicsimageio",
+        "pint",
+        "tifffile",
+    ],
     python_requires=">=3.9",
 )

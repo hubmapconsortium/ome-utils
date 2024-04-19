@@ -1,13 +1,19 @@
 import html
 import unicodedata
+from functools import singledispatch
 from io import StringIO
-from typing import Optional
+from typing import Optional, Union
 from xml.etree import ElementTree as ET
 
+import aicsimageio
+import tifffile
 from pint import Quantity, UnitRegistry
 
-target_physical_size = "nm"
+target_unit_default = "um"
+spatial_dimensions = "XYZ"
 reg = UnitRegistry()
+
+Image = Union["tifffile.TiffFile", "aicsimageio.AICSImage"]
 
 
 def strip_namespace_and_parse(xmlstr: str):
@@ -16,6 +22,21 @@ def strip_namespace_and_parse(xmlstr: str):
         _, _, el.tag = el.tag.rpartition("}")
     root = it.root
     return root
+
+
+@singledispatch
+def get_ome_xml_str(image):
+    raise NotImplementedError(f"Unknown argument type: {type(image)}")
+
+
+@get_ome_xml_str.register
+def _(image: tifffile.TiffFile):
+    return image.pages[0].tags["ImageDescription"]
+
+
+@get_ome_xml_str.register
+def _(image: aicsimageio.AICSImage):
+    return image.xarray_dask_data.unprocessed[270]
 
 
 def physical_size_to_quantity(
@@ -37,26 +58,35 @@ def physical_size_to_quantity(
     return size
 
 
-def convert_size_to_nm(px_node: ET.Element):
-    for dimension in "XY":
-        size = physical_size_to_quantity(px_node, dimension)
-        if size is not None:
-            size_converted = size.to(target_physical_size)
-            px_node.set(f"PhysicalSize{dimension}Unit", target_physical_size)
-            px_node.set(f"PhysicalSize{dimension}", str(size_converted.magnitude))
+def convert_and_set_physical_size(
+    px_node: ET.Element,
+    sizes: dict[str, Quantity],
+    target_unit: str = target_unit_default,
+):
+    """
+    Operates on px_node in place, setting PhysicalSize{dimension} and
+    PhysicalSizeDimension{dimension}Unit attributes.
+    """
+    for dimension, size in sizes.items():
+        size_converted = size.to(target_unit)
+        px_node.set(f"PhysicalSize{dimension}Unit", target_unit)
+        px_node.set(f"PhysicalSize{dimension}", str(size_converted.magnitude))
 
 
-def get_physical_size_quantities(xml_str: str) -> dict[str, Quantity]:
+def get_physical_size_quantities(image: Image) -> dict[str, Quantity]:
+    xml_str = get_ome_xml_str(image)
     ome_xml: ET.Element = strip_namespace_and_parse(xml_str)
     px_node = ome_xml.find("Image").find("Pixels")
     dimensions = {}
-    for dimension in "XYZ":
+    for dimension in spatial_dimensions:
         size = physical_size_to_quantity(px_node, dimension)
         if size is not None:
             dimensions[dimension] = size
     return dimensions
 
 
-def get_converted_physical_size(xml_str: str, target_unit: str = "um") -> dict[str, Quantity]:
-    dimensions = get_physical_size_quantities(xml_str)
+def get_converted_physical_size(
+    image: Image, target_unit: str = target_unit_default
+) -> dict[str, Quantity]:
+    dimensions = get_physical_size_quantities(image)
     return {dimension: size.to(target_unit) for dimension, size in dimensions.items()}
