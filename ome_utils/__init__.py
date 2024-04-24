@@ -13,7 +13,7 @@ target_unit_default = "um"
 spatial_dimensions = "XYZ"
 reg = UnitRegistry()
 
-Image = Union["tifffile.TiffFile", "aicsimageio.AICSImage"]
+Image = Union[tifffile.TiffFile, aicsimageio.AICSImage]
 
 
 def strip_namespace_and_parse(xmlstr: str):
