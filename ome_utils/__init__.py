@@ -31,7 +31,7 @@ def get_ome_xml_str(image):
 
 @get_ome_xml_str.register
 def _(image: tifffile.TiffFile):
-    return image.pages[0].tags["ImageDescription"]
+    return image.pages[0].tags["ImageDescription"].value
 
 
 @get_ome_xml_str.register
