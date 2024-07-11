@@ -9,7 +9,7 @@ with open(here / "README.rst", encoding="utf-8") as f:
 
 setup(
     name="hubmap-ome-utils",
-    version="0.3.0",
+    version="0.3.1",
     description="OME-XML utility functions for HuBMAP computational pipelines",
     long_description=long_description,
     long_description_content_type="text/x-rst",
