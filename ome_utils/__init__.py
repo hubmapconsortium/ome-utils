@@ -61,7 +61,7 @@ def physical_size_to_quantity(
         return None
 
     unit_normalized = unicodedata.normalize("NFKC", html.unescape(unit_str))
-    size = float(size_str) * reg[unit_normalized]
+    size = float(size_str) * reg(unit_normalized)
     return size
 
 
