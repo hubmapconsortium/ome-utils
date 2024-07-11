@@ -53,10 +53,7 @@ def physical_size_to_quantity(
     px_node: ET.Element,
     dimension: str,
 ) -> Optional[Quantity]:
-    unit_str = px_node.get(f"PhysicalSize{dimension}Unit", None)
-    if unit_str is None:
-        print("Could not find physical unit in OMEXML for dimension", dimension)
-        return None
+    unit_str = px_node.get(f"PhysicalSize{dimension}Unit", target_unit_default)
 
     size_str = px_node.get(f"PhysicalSize{dimension}", None)
     if size_str is None:
