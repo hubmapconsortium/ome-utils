@@ -1,19 +1,29 @@
 import html
+import re
 import unicodedata
 from functools import singledispatch
 from io import StringIO
-from typing import Optional, Union
+from pathlib import Path
+from typing import Iterable, Optional, Union
 from xml.etree import ElementTree as ET
 
 import aicsimageio
 import tifffile
 from pint import Quantity, UnitRegistry
 
+ome_tiff_pattern = re.compile(r"^(?P<basename>.+)\.ome\.tiff?$")
+
 target_unit_default = "um"
 spatial_dimensions = "XYZ"
 reg = UnitRegistry()
 
 Image = Union[tifffile.TiffFile, aicsimageio.AICSImage]
+
+
+def find_ome_tiffs(directory: Path) -> Iterable[Path]:
+    for entry in directory.iterdir():
+        if ome_tiff_pattern.match(entry.name):
+            yield entry
 
 
 def strip_namespace_and_parse(xmlstr: str):
