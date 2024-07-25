@@ -57,7 +57,7 @@ def physical_size_to_quantity(
 
 def convert_and_set_physical_size(
     px_node: ET.Element,
-    sizes: dict[str, Quantity],
+    sizes: Dict[str, Quantity],
     target_unit: str = target_unit_default,
 ):
     """
