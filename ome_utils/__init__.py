@@ -4,7 +4,7 @@ import unicodedata
 from functools import singledispatch
 from io import StringIO
 from pathlib import Path
-from typing import Iterable, Optional, Union
+from typing import Dict, Iterable, Optional, Union
 from xml.etree import ElementTree as ET
 
 import aicsimageio
@@ -39,16 +39,6 @@ def get_ome_xml_str(image):
     raise NotImplementedError(f"Unknown argument type: {type(image)}")
 
 
-@get_ome_xml_str.register
-def _(image: tifffile.TiffFile):
-    return image.pages[0].tags["ImageDescription"].value
-
-
-@get_ome_xml_str.register
-def _(image: aicsimageio.AICSImage):
-    return image.xarray_dask_data.unprocessed[270]
-
-
 def physical_size_to_quantity(
     px_node: ET.Element,
     dimension: str,
@@ -80,7 +70,7 @@ def convert_and_set_physical_size(
         px_node.set(f"PhysicalSize{dimension}", str(size_converted.magnitude))
 
 
-def get_physical_size_quantities(image: Image) -> dict[str, Quantity]:
+def get_physical_size_quantities(image: Image) -> Dict[str, Quantity]:
     xml_str = get_ome_xml_str(image)
     ome_xml: ET.Element = strip_namespace_and_parse(xml_str)
     px_node = ome_xml.find("Image").find("Pixels")
@@ -94,6 +84,6 @@ def get_physical_size_quantities(image: Image) -> dict[str, Quantity]:
 
 def get_converted_physical_size(
     image: Image, target_unit: str = target_unit_default
-) -> dict[str, Quantity]:
+) -> Dict[str, Quantity]:
     dimensions = get_physical_size_quantities(image)
     return {dimension: size.to(target_unit) for dimension, size in dimensions.items()}

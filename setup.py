@@ -9,7 +9,7 @@ with open(here / "README.rst", encoding="utf-8") as f:
 
 setup(
     name="hubmap-ome-utils",
-    version="0.3.1",
+    version="0.3.2",
     description="OME-XML utility functions for HuBMAP computational pipelines",
     long_description=long_description,
     long_description_content_type="text/x-rst",
@@ -23,6 +23,8 @@ setup(
         "Topic :: Software Development",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
@@ -35,5 +37,5 @@ setup(
         "pint",
         "tifffile",
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.7",
 )
