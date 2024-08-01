@@ -39,6 +39,16 @@ def get_ome_xml_str(image):
     raise NotImplementedError(f"Unknown argument type: {type(image)}")
 
 
+@get_ome_xml_str.register
+def _(image: tifffile.TiffFile):
+    return image.pages[0].tags["ImageDescription"].value
+
+
+@get_ome_xml_str.register
+def _(image: aicsimageio.AICSImage):
+    return image.xarray_dask_data.unprocessed[270]
+
+
 def physical_size_to_quantity(
     px_node: ET.Element,
     dimension: str,
