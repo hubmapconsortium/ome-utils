@@ -3,6 +3,7 @@ import re
 import unicodedata
 from functools import singledispatch
 from io import StringIO
+from os import walk
 from pathlib import Path
 from typing import Dict, Iterable, Optional, Union
 from xml.etree import ElementTree as ET
@@ -20,10 +21,14 @@ reg = UnitRegistry()
 Image = Union[tifffile.TiffFile, aicsimageio.AICSImage]
 
 
-def find_ome_tiffs(directory: Path) -> Iterable[Path]:
-    for entry in directory.iterdir():
-        if ome_tiff_pattern.match(entry.name):
-            yield entry
+def find_ome_tiffs(directory: Path, recurse=False) -> Iterable[Path]:
+    for dirpath_str, dirnames, filenames in walk(directory):
+        if not recurse:
+            dirnames.clear()
+        dirpath = Path(dirpath_str)
+        for filename in filenames:
+            if ome_tiff_pattern.match(filename):
+                yield dirpath / filename
 
 
 def strip_namespace_and_parse(xmlstr: str):
