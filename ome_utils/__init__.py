@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, Iterable, Optional, Union
 from xml.etree import ElementTree as ET
 
-import aicsimageio
+import bioio
 import tifffile
 from pint import Quantity, UnitRegistry
 
@@ -18,7 +18,7 @@ target_unit_default = "um"
 spatial_dimensions = "XYZ"
 reg = UnitRegistry()
 
-Image = Union[tifffile.TiffFile, aicsimageio.AICSImage]
+Image = Union[tifffile.TiffFile, bioio.BioImage]
 
 
 def find_ome_tiffs(directory: Path, recurse=False) -> Iterable[Path]:
@@ -50,7 +50,7 @@ def _(image: tifffile.TiffFile):
 
 
 @get_ome_xml_str.register
-def _(image: aicsimageio.AICSImage):
+def _(image: bioio.BioImage):
     return image.xarray_dask_data.unprocessed[270]
 
 

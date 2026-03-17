@@ -33,7 +33,7 @@ setup(
     keywords="ometiff",
     packages=find_packages(),
     install_requires=[
-        "aicsimageio",
+        "bioio",
         "pint",
         "tifffile",
     ],
